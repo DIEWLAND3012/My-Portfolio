@@ -369,6 +369,47 @@ function renderPopular() {
   popularRow.scrollLeft = 0;
 }
 
+/* ---------- Recommend (ตั้งค่าในหน้า admin) ---------- */
+function formatDate(iso) {
+  const [y, m, d] = String(iso || "").split("-").map(Number);
+  if (!y || !m || !d) return "";
+  return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
+
+function renderRecommend(rec) {
+  const section = $("#recommend");
+  if (!rec) return;
+  const isVideo = rec.type === "youtube";
+  const photos = rec.photos || [];
+  const img = $("#recImg");
+  img.addEventListener("load", () => img.classList.add("is-loaded"), { once: true });
+  img.src = isVideo ? ytThumb(rec.youtubeId, "hqdefault") : photos[0].src;
+  img.alt = rec.title;
+  if (isVideo) bestYtThumb(rec.youtubeId).then((src) => (img.src = src));
+
+  $("#recPlay").hidden = !isVideo;
+  const count = $("#recCount");
+  count.hidden = isVideo || photos.length < 2;
+  count.innerHTML = `${ALBUM_ICON}<span>${photos.length}</span>`;
+
+  $("#recTag").textContent = isVideo ? "YouTube" : "Instagram";
+  $("#recTitle").textContent = rec.title;
+  $("#recDate").textContent = formatDate(rec.date);
+  $("#recDate").dateTime = rec.date || "";
+  $("#recDesc").textContent = rec.description;
+  $("#recOpen").textContent = isVideo ? "▶ ดูวิดีโอ" : photos.length > 1 ? `ดูรูปทั้งหมด (${photos.length})` : "ดูรูป";
+
+  const open = () =>
+    isVideo
+      ? openVideo(rec.youtubeId)
+      : openLightbox({ photos, title: rec.title, meta: formatDate(rec.date) });
+  $("#recMedia").onclick = open;
+  $("#recOpen").onclick = open;
+  section.hidden = false;
+}
+
+siteDataPromise.then((data) => renderRecommend(data?.recommend));
+
 function openPost(post) {
   openLightbox({ photos: post.photos, title: post.title, meta: `Photo • ${post.year}` });
 }

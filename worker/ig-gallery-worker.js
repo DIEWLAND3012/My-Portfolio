@@ -31,6 +31,8 @@ const DEFAULT_CONTENT = {
   titles: {}, // { [id]: "คำอธิบายใหม่" }
   custom: [], // รูปที่อัปโหลดเอง [{ id, year, title, src, added }]
   films: null, // null = ใช้รายการหนังเริ่มต้นใน data.js
+  // โพสต์แนะนำในหน้า Profile: { type: "youtube"|"instagram", youtubeId, postId, title, description, date }
+  recommend: null,
 };
 
 /* ---------------- Instagram ---------------- */
@@ -155,7 +157,32 @@ function sanitizeContent(input) {
         background: String(f.background || "").slice(0, 500),
       }))
     : null;
+  const r = input.recommend;
+  c.recommend =
+    r && (r.type === "youtube" || r.type === "instagram")
+      ? {
+          type: r.type,
+          youtubeId: String(r.youtubeId || "").replace(/[^\w-]/g, "").slice(0, 20),
+          postId: String(r.postId || "").replace(/[^\w]/g, "").slice(0, 40),
+          title: String(r.title || "").slice(0, 200),
+          description: String(r.description || "").slice(0, 3000),
+          date: /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : "",
+        }
+      : null;
   return c;
+}
+
+/** เติมรูปของโพสต์ IG ที่เลือกเป็น Recommend (เรียงตามลำดับในอัลบั้ม) */
+function buildRecommend(igPhotos, content) {
+  const r = content.recommend;
+  if (!r) return null;
+  if (r.type === "instagram") {
+    const photos = igPhotos.filter((p) => p.id.startsWith(`${r.postId}_`)).map((p) => ({ src: p.src }));
+    if (!photos.length) return null; // โพสต์ถูกลบจาก IG แล้ว
+    const permalink = igPhotos.find((p) => p.id.startsWith(`${r.postId}_`))?.permalink || "";
+    return { ...r, photos, permalink };
+  }
+  return r.youtubeId ? r : null;
 }
 
 /* ---------------- Auth ---------------- */
@@ -202,7 +229,12 @@ async function route(request, env, ctx) {
   if (method === "GET" && path === "/") {
     const [igPhotos, content] = await Promise.all([getIgPhotos(env, ctx, request.url), getContent(env)]);
     return json(
-      { updated: new Date().toISOString(), years: buildPublicGallery(igPhotos, content), films: content.films },
+      {
+        updated: new Date().toISOString(),
+        years: buildPublicGallery(igPhotos, content),
+        films: content.films,
+        recommend: buildRecommend(igPhotos, content),
+      },
       200,
       { "Cache-Control": "public, max-age=60" }
     );

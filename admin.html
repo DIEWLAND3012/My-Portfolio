@@ -30,6 +30,7 @@
       <nav class="tabs" role="tablist">
         <button class="tab is-active" data-tab="gallery" role="tab" type="button">Gallery</button>
         <button class="tab" data-tab="films" role="tab" type="button">Films</button>
+        <button class="tab" data-tab="recommend" role="tab" type="button">Recommend</button>
       </nav>
       <div class="topbar__actions">
         <a class="btn btn--ghost" href="index.html" target="_blank">ดูหน้าเว็บ ↗</a>
@@ -74,6 +75,47 @@
         <span class="toolbar__hint">ลำดับในหน้านี้ = ลำดับใน slider หน้า Film</span>
       </div>
       <div id="filmList" class="film-list"></div>
+    </section>
+
+    <!-- Recommend -->
+    <section class="panel" id="tab-recommend" hidden>
+      <div class="toolbar">
+        <span class="toolbar__hint">โพสต์แนะนำ 1 โพสต์ แสดงในหน้า Profile ใต้ Contact / เหนือ Most Popular</span>
+      </div>
+
+      <div class="rec-empty" id="recEmpty">
+        <p>ยังไม่มีโพสต์แนะนำ</p>
+        <button class="btn btn--primary" id="recCreateBtn" type="button">+ เพิ่มโพสต์แนะนำ</button>
+      </div>
+
+      <div class="rec" id="recEditor" hidden>
+        <div class="rec__preview">
+          <div class="rec__media" id="recPreview"></div>
+          <button class="btn btn--ghost rec__delete" id="recDeleteBtn" type="button">ลบโพสต์แนะนำ</button>
+        </div>
+
+        <div class="rec__fields">
+          <div class="segmented" role="radiogroup" aria-label="ประเภท">
+            <label><input type="radio" name="recType" value="youtube" /> <span>วิดีโอ YouTube</span></label>
+            <label><input type="radio" name="recType" value="instagram" /> <span>โพสต์ Instagram</span></label>
+          </div>
+
+          <label id="recYoutubeField">ลิงก์ YouTube
+            <input type="text" id="recYoutube" placeholder="https://youtu.be/..." />
+          </label>
+
+          <div id="recIgField">
+            <label>เลือกโพสต์ IG (ค้นหาจากแคปชัน)
+              <input type="text" id="recIgSearch" placeholder="พิมพ์เพื่อค้นหา…" />
+            </label>
+            <div class="ig-picker" id="recIgPicker"></div>
+          </div>
+
+          <label>Title <input type="text" id="recTitle" /></label>
+          <label>คำอธิบาย <textarea id="recDesc" rows="4"></textarea></label>
+          <label class="rec__date">วันที่ <input type="date" id="recDate" /></label>
+        </div>
+      </div>
     </section>
 
     <!-- Save bar -->

@@ -98,6 +98,27 @@
           </aside>
         </div>
 
+        <!-- Recommend — แก้ไขได้ที่หน้า admin (แท็บ Recommend) -->
+        <section class="recommend" id="recommend" aria-labelledby="recHeading" hidden>
+          <div class="row-head"><h3 id="recHeading">Recommend</h3></div>
+          <article class="rec-card">
+            <button class="rec-card__media ph" id="recMedia" type="button">
+              <img id="recImg" alt="" />
+              <span class="rec-card__play" id="recPlay" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" /></svg>
+              </span>
+              <span class="card__count" id="recCount" hidden></span>
+            </button>
+            <div class="rec-card__body">
+              <span class="card__tag" id="recTag"></span>
+              <h4 class="rec-card__title" id="recTitle"></h4>
+              <time class="rec-card__date" id="recDate"></time>
+              <p class="rec-card__desc" id="recDesc"></p>
+              <button class="btn btn--rec" id="recOpen" type="button"></button>
+            </div>
+          </article>
+        </section>
+
         <div class="row-head">
           <h3>Most Popular</h3>
           <button class="row-head__shuffle" id="shuffleBtn" type="button" aria-label="Shuffle most popular">

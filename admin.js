@@ -39,6 +39,7 @@ async function login() {
   igYears = data.igYears;
   saved = data.content;
   if (!saved.films) saved.films = clone(DEFAULT_FILMS);
+  if (saved.recommend === undefined) saved.recommend = null;
   draft = clone(saved);
   pendingUploads = [];
   $("#loginView").hidden = true;
@@ -46,6 +47,7 @@ async function login() {
   initYearSelect();
   renderGallery();
   renderFilms();
+  renderRecommend();
   updateDirty();
 }
 
@@ -101,6 +103,12 @@ $("#saveBtn").addEventListener("click", async () => {
     $$(".tab")[1].click();
     return;
   }
+  const rec = draft.recommend;
+  if (rec && ((rec.type === "youtube" && !rec.youtubeId) || (rec.type === "instagram" && !rec.postId))) {
+    alert("โพสต์แนะนำยังไม่ได้ใส่ลิงก์ YouTube ที่ถูกต้อง หรือยังไม่ได้เลือกโพสต์ IG");
+    $$(".tab")[2].click();
+    return;
+  }
   $("#saveBtn").disabled = true;
   $("#saveStatus").textContent = "กำลังบันทึก…";
   try {
@@ -128,6 +136,7 @@ $("#discardBtn").addEventListener("click", async () => {
   draft = clone(saved);
   renderGallery();
   renderFilms();
+  renderRecommend();
   updateDirty();
 });
 
@@ -423,3 +432,115 @@ $("#addFilmBtn").addEventListener("click", () => {
   updateDirty();
   $("#filmList [data-field='title']").focus();
 });
+
+/* ---------------- Recommend ---------------- */
+const today = () => new Date().toISOString().slice(0, 10);
+
+/** โพสต์ IG ทั้งหมด (รวมรูปในอัลบั้มเป็น 1 โพสต์) เรียงใหม่ → เก่า */
+function igPosts() {
+  const posts = new Map();
+  for (const { photos } of igYears) {
+    for (const p of photos) {
+      const postId = p.id.replace(/_\d+$/, "");
+      if (!posts.has(postId)) posts.set(postId, { postId, cover: p.src, title: p.title, timestamp: p.timestamp, count: 0 });
+      posts.get(postId).count++;
+    }
+  }
+  return [...posts.values()].sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+}
+
+function renderRecommend() {
+  const rec = draft.recommend;
+  $("#recEmpty").hidden = Boolean(rec);
+  $("#recEditor").hidden = !rec;
+  if (!rec) return;
+
+  $$("input[name=recType]").forEach((r) => (r.checked = r.value === rec.type));
+  $("#recYoutubeField").hidden = rec.type !== "youtube";
+  $("#recIgField").hidden = rec.type !== "instagram";
+  $("#recYoutube").value = rec.youtubeId ? `https://youtu.be/${rec.youtubeId}` : "";
+  $("#recTitle").value = rec.title || "";
+  $("#recDesc").value = rec.description || "";
+  $("#recDate").value = rec.date || "";
+  renderRecPreview();
+  if (rec.type === "instagram") renderIgPicker();
+}
+
+function renderRecPreview() {
+  const rec = draft.recommend;
+  const box = $("#recPreview");
+  let src = "";
+  if (rec.type === "youtube" && rec.youtubeId) src = ytThumb(rec.youtubeId);
+  if (rec.type === "instagram") src = igPosts().find((p) => p.postId === rec.postId)?.cover || "";
+  box.innerHTML = src ? `<img alt="">` : `<span>${rec.type === "youtube" ? "ใส่ลิงก์ YouTube" : "เลือกโพสต์ IG ด้านขวา"}</span>`;
+  if (src) $("img", box).src = src;
+}
+
+function renderIgPicker() {
+  const q = $("#recIgSearch").value.trim().toLowerCase();
+  const picker = $("#recIgPicker");
+  const posts = igPosts().filter((p) => !q || (p.title || "").toLowerCase().includes(q));
+  picker.replaceChildren(
+    ...posts.slice(0, 200).map((p) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ig-pick";
+      b.classList.toggle("is-selected", p.postId === draft.recommend.postId);
+      b.title = p.title;
+      b.innerHTML = `<img loading="lazy" alt=""><span></span>`;
+      $("img", b).src = p.cover;
+      const date = p.timestamp ? new Date(p.timestamp).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "2-digit" }) : "";
+      $("span", b).textContent = `${date}${p.count > 1 ? ` • ${p.count} รูป` : ""}`;
+      b.addEventListener("click", () => {
+        const rec = draft.recommend;
+        rec.postId = p.postId;
+        // เติม title/วันที่จากโพสต์ให้อัตโนมัติถ้ายังว่าง
+        if (!rec.title) rec.title = p.title === "Instagram" ? "" : p.title;
+        if (!rec.date && p.timestamp) rec.date = p.timestamp.slice(0, 10);
+        renderRecommend();
+        updateDirty();
+      });
+      return b;
+    })
+  );
+  if (!posts.length) picker.innerHTML = `<p class="toolbar__hint">ไม่พบโพสต์</p>`;
+}
+
+$("#recCreateBtn").addEventListener("click", () => {
+  draft.recommend = { type: "youtube", youtubeId: "", postId: "", title: "", description: "", date: today() };
+  renderRecommend();
+  updateDirty();
+});
+
+$("#recDeleteBtn").addEventListener("click", () => {
+  if (!confirm("ลบโพสต์แนะนำ? (มีผลเมื่อกดบันทึก)")) return;
+  draft.recommend = null;
+  renderRecommend();
+  updateDirty();
+});
+
+$$("input[name=recType]").forEach((radio) =>
+  radio.addEventListener("change", () => {
+    draft.recommend.type = radio.value;
+    renderRecommend();
+    updateDirty();
+  })
+);
+
+$("#recYoutube").addEventListener("input", (e) => {
+  const el = e.target;
+  draft.recommend.youtubeId = parseYoutubeId(el.value);
+  el.setCustomValidity(el.value && !draft.recommend.youtubeId ? "ลิงก์ YouTube ไม่ถูกต้อง" : "");
+  el.reportValidity();
+  renderRecPreview();
+  updateDirty();
+});
+
+$("#recIgSearch").addEventListener("input", renderIgPicker);
+
+[["#recTitle", "title"], ["#recDesc", "description"], ["#recDate", "date"]].forEach(([sel, field]) =>
+  $(sel).addEventListener("input", (e) => {
+    draft.recommend[field] = e.target.value;
+    updateDirty();
+  })
+);

@@ -993,3 +993,82 @@ h1, h2, h3, p, figure { margin: 0; }
   text-underline-offset: 3px;
 }
 .video__external:hover { color: #fff; }
+
+/* =========================================================
+   PROFILE — Recommend
+   ========================================================= */
+.recommend .row-head { margin-top: 36px; }
+.rec-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(18px, 3vw, 36px);
+  align-items: center;
+  padding: clamp(12px, 1.6vw, 18px);
+  border-radius: var(--radius-md);
+  background: #F5F7FB;
+  box-shadow: var(--shadow-default);
+}
+.rec-card__media {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-default);
+  transition: var(--transition);
+}
+.rec-card__media:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+.rec-card__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--accent);
+  box-shadow: var(--shadow-hover);
+  transition: var(--transition);
+}
+.rec-card__play svg { width: 28px; height: 28px; margin-left: 3px; }
+.rec-card__media:hover .rec-card__play { transform: scale(1.08); }
+.rec-card__play[hidden] { display: none; }
+.rec-card__body { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.rec-card__title {
+  margin: 0;
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+.rec-card__title:empty { display: none; }
+.rec-card__date { font-size: 13px; color: #6b7280; }
+.rec-card__desc {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #374151;
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rec-card__desc:empty { display: none; }
+.btn--rec {
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: var(--btn-profile);
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+@media (max-width: 860px) {
+  .rec-card { grid-template-columns: 1fr; }
+  .rec-card__desc { -webkit-line-clamp: 8; }
+}
+
+.card__count[hidden] { display: none; }
