@@ -222,6 +222,12 @@ async function route(request, env, ctx) {
 
   // ---- Admin ----
   if (path.startsWith("/admin")) {
+    // จำกัดจำนวนคำขอ /admin ต่อ IP กันการเดารหัสผ่าน (ดู [[ratelimits]] ใน wrangler.toml)
+    if (env.ADMIN_LIMITER) {
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const { success } = await env.ADMIN_LIMITER.limit({ key: ip });
+      if (!success) return json({ error: "ลองบ่อยเกินไป กรุณารอ 1 นาที" }, 429);
+    }
     if (!(await isAdmin(request, env))) return json({ error: "Unauthorized" }, 401);
 
     if (method === "GET" && path === "/admin/data") {
