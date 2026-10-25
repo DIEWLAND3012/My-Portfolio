@@ -45,13 +45,25 @@ const siteDataPromise = WORKER_URL
       })
   : Promise.resolve(null);
 
+/**
+ * รวมรูปจากโพสต์เดียวกันเป็น 1 อัลบั้ม
+ * id รูป IG = "<postId>_<ลำดับ>" ส่วนรูปที่อัปโหลดเอง (ไม่มี _) จะเป็นอัลบั้มเดี่ยว
+ * ผลลัพธ์: [{ year, posts: [{ id, title, year, photos: [{ src }] }] }]
+ */
+function groupIntoPosts(year, photos) {
+  const posts = new Map();
+  for (const p of photos) {
+    const postId = String(p.id ?? p.src).replace(/_\d+$/, "");
+    if (!posts.has(postId)) posts.set(postId, { id: postId, title: p.title || "", year, photos: [] });
+    posts.get(postId).photos.push({ src: p.src });
+  }
+  return [...posts.values()];
+}
+
 async function loadInstagramGallery() {
   const data = await siteDataPromise;
   if (!data?.years) return null;
-  return data.years.map(({ year, photos }) => ({
-    year,
-    photos: photos.map((p) => ({ src: p.src, full: p.src, title: p.title, description: `Gallery • ${year}` })),
-  }));
+  return data.years.map(({ year, photos }) => ({ year, posts: groupIntoPosts(year, photos) }));
 }
 
 const GALLERY_YEARS = [2026, 2025, 2024, 2023]; // เรียงจากใหม่ไปเก่า
@@ -72,9 +84,9 @@ async function loadGalleryYear(year) {
   for (let n = 1; n <= GALLERY_MAX; n++) {
     const src = galleryPath(year, n);
     if (!(await imageExists(src))) break;
-    photos.push({ src, full: src, title: `${year} — No. ${n}`, description: `Gallery ${year}` });
+    photos.push({ id: src, src, title: "" });
   }
-  return { year, photos };
+  return { year, posts: groupIntoPosts(year, photos) };
 }
 
 let GALLERY = [];
@@ -106,26 +118,32 @@ function watchFallback(img) {
   if (img.complete && img.getAttribute("src") && img.naturalWidth === 0) markMissing();
 }
 
-/** สร้างการ์ดรูป 1:1 + คำอธิบาย */
-function createCard({ src, full, title, description, tag }, onOpen) {
+const ALBUM_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="14" height="14" rx="2"/><path d="M17 3H5a2 2 0 0 0-2 2v12"/></svg>`;
+
+/**
+ * การ์ดรูป 1:1 (ไม่แสดงชื่อโพสต์ — ชื่อจะขึ้นตอนกดดู)
+ * tag/meta = บรรทัดเล็กใต้รูป (ไม่ใส่ = ไม่มีข้อความใต้รูป), count > 1 = แสดงไอคอนอัลบั้ม
+ */
+function createCard({ src, alt = "", tag, meta, count = 1 }, onOpen) {
   const card = document.createElement("button");
   card.type = "button";
   card.className = "card";
   card.innerHTML = `
-    <div class="card__media ph"><img loading="lazy" alt=""></div>
-    <div class="card__body">
-      ${tag ? `<span class="card__tag"></span>` : ""}
-      <p class="card__title"></p>
-      ${description ? `<p class="card__desc"></p>` : ""}
-    </div>`;
+    <div class="card__media ph">
+      <img loading="lazy" alt="">
+      ${count > 1 ? `<span class="card__count">${ALBUM_ICON}<span>${count}</span></span>` : ""}
+    </div>
+    ${tag || meta ? `<div class="card__body"><span class="card__tag"></span><p class="card__desc"></p></div>` : ""}`;
   const img = $("img", card);
-  img.alt = title;
+  img.alt = alt;
   img.addEventListener("load", () => img.classList.add("is-loaded"));
   img.src = src;
-  $(".card__title", card).textContent = title;
-  if (tag) $(".card__tag", card).textContent = tag;
-  if (description) $(".card__desc", card).textContent = description;
-  card.addEventListener("click", () => onOpen({ src: full || src, title, description }));
+  if (tag || meta) {
+    $(".card__tag", card).textContent = tag || "";
+    $(".card__desc", card).textContent = meta || "";
+  }
+  if (count > 1) card.setAttribute("aria-label", `${alt} (${count} photos)`);
+  card.addEventListener("click", onOpen);
   return card;
 }
 
@@ -214,7 +232,6 @@ window.addEventListener("popstate", () => {
    --------------------------------------------------------- */
 const lightbox = $("#lightbox");
 const lightboxImg = $("#lightboxImg");
-const lightboxCaption = $("#lightboxCaption");
 const videoModal = $("#videoModal");
 const videoFrame = $("#videoFrame");
 let lastFocus = null;
@@ -252,16 +269,63 @@ function onModalKey(e) {
   });
 });
 
-function openLightbox({ src, title, description }) {
-  lightboxImg.src = src;
-  lightboxImg.alt = title;
-  lightboxCaption.innerHTML = "";
-  const strong = document.createElement("strong");
-  strong.textContent = title;
-  lightboxCaption.append(strong);
-  if (description) lightboxCaption.append(description);
+/* ---------- Album lightbox: ดูทุกรูปในโพสต์ ---------- */
+const lightboxThumbs = $("#lightboxThumbs");
+let album = { photos: [], index: 0 };
+
+/** photos = [{ src }], title/meta = ข้อความใต้รูป */
+function openLightbox({ photos, index = 0, title = "", meta = "" }) {
+  album = { photos, index };
+  $("#lightboxTitle").textContent = title;
+  $("#lightboxMeta").textContent = meta;
+  lightbox.classList.toggle("is-album", photos.length > 1);
+
+  lightboxThumbs.replaceChildren(
+    ...(photos.length > 1
+      ? photos.map((p, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "lightbox__thumb";
+          b.setAttribute("aria-label", `Photo ${i + 1}`);
+          b.innerHTML = `<img loading="lazy" alt="">`;
+          $("img", b).src = p.src;
+          b.addEventListener("click", () => showAlbumPhoto(i));
+          return b;
+        })
+      : [])
+  );
+  showAlbumPhoto(index);
   openModal(lightbox);
 }
+
+function showAlbumPhoto(i) {
+  const n = album.photos.length;
+  album.index = (i + n) % n; // วนลูป
+  lightboxImg.src = album.photos[album.index].src;
+  lightboxImg.alt = $("#lightboxTitle").textContent;
+  $("#lightboxCount").textContent = n > 1 ? `${album.index + 1} / ${n}` : "";
+  [...lightboxThumbs.children].forEach((t, k) => t.classList.toggle("is-active", k === album.index));
+  lightboxThumbs.children[album.index]?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+}
+
+$("#lightboxPrev").addEventListener("click", () => showAlbumPhoto(album.index - 1));
+$("#lightboxNext").addEventListener("click", () => showAlbumPhoto(album.index + 1));
+
+document.addEventListener("keydown", (e) => {
+  if (lightbox.hidden || album.photos.length < 2) return;
+  if (e.key === "ArrowRight") showAlbumPhoto(album.index + 1);
+  if (e.key === "ArrowLeft") showAlbumPhoto(album.index - 1);
+});
+
+// ปัดซ้าย-ขวาบนมือถือเพื่อเปลี่ยนรูป
+let lbTouch = null;
+lightboxImg.addEventListener("touchstart", (e) => (lbTouch = e.touches[0].clientX), { passive: true });
+lightboxImg.addEventListener("touchend", (e) => {
+  if (lbTouch === null || album.photos.length < 2) return;
+  const dx = e.changedTouches[0].clientX - lbTouch;
+  lbTouch = null;
+  if (Math.abs(dx) > 50) showAlbumPhoto(album.index + (dx < 0 ? 1 : -1));
+});
 
 function openVideo(youtubeId) {
   const id = encodeURIComponent(youtubeId);
@@ -279,24 +343,34 @@ function openVideo(youtubeId) {
 const popularRow = $("#popularRow");
 const POPULAR_COUNT = 8;
 
+// แต่ละรายการ = 1 การ์ด (หนัง 1 เรื่อง หรือ โพสต์ Gallery 1 โพสต์)
 function buildPopularPool() {
   const films = FILMS.map((f) => ({
-    src: f.thumbnail,
-    full: f.background || ytThumb(f.youtubeId, "maxresdefault"),
-    title: `${f.title} (${f.year})`,
-    description: f.tagline.replace(/[“”"]/g, "") || "Film",
-    tag: "Film",
+    card: { src: f.thumbnail, alt: f.title, tag: "Film", meta: `Film • ${f.year}` },
+    open: () =>
+      openLightbox({
+        photos: [{ src: f.background || ytThumb(f.youtubeId, "maxresdefault") }],
+        title: f.title,
+        meta: `Film • ${f.year}`,
+      }),
   }));
-  const photos = GALLERY.flatMap((g) =>
-    g.photos.map((p) => ({ ...p, description: `Photo • ${g.year}`, tag: "Gallery" }))
+  const posts = GALLERY.flatMap((g) =>
+    g.posts.map((post) => ({
+      card: { src: post.photos[0].src, alt: post.title, tag: "Gallery", meta: `Photo • ${g.year}`, count: post.photos.length },
+      open: () => openPost(post),
+    }))
   );
-  return [...films, ...photos];
+  return [...films, ...posts];
 }
 
 function renderPopular() {
   const picks = shuffle(buildPopularPool()).slice(0, POPULAR_COUNT);
-  popularRow.replaceChildren(...picks.map((item) => createCard(item, openLightbox)));
+  popularRow.replaceChildren(...picks.map((item) => createCard(item.card, item.open)));
   popularRow.scrollLeft = 0;
+}
+
+function openPost(post) {
+  openLightbox({ photos: post.photos, title: post.title, meta: `Photo • ${post.year}` });
 }
 
 $("#shuffleBtn").addEventListener("click", renderPopular);
@@ -427,7 +501,7 @@ renderFilm();
    --------------------------------------------------------- */
 const galleryYears = $("#galleryYears");
 
-function renderGalleryYear({ year, photos }) {
+function renderGalleryYear({ year, posts }) {
   const block = document.createElement("div");
   block.className = "year-block";
   block.innerHTML = `
@@ -439,7 +513,9 @@ function renderGalleryYear({ year, photos }) {
     </div>
     <div class="card-row"></div>`;
   const row = $(".card-row", block);
-  photos.forEach((p) => row.append(createCard({ ...p, description: "" }, () => openLightbox(p))));
+  posts.forEach((post) =>
+    row.append(createCard({ src: post.photos[0].src, alt: post.title, count: post.photos.length }, () => openPost(post)))
+  );
 
   // กดลูกศรข้างปีเพื่อเลื่อนแถวไปทางขวา (สุดแล้ววนกลับต้นแถว)
   $(".row-head__arrow", block).addEventListener("click", () => {
@@ -452,7 +528,7 @@ function renderGalleryYear({ year, photos }) {
 
 (async function initGallery() {
   GALLERY = ((await loadInstagramGallery()) || (await Promise.all(GALLERY_YEARS.map(loadGalleryYear)))).filter(
-    (g) => g.photos.length
+    (g) => g.posts.length
   );
   if (!GALLERY.length) {
     galleryYears.innerHTML = `<p class="gallery__empty">ยังไม่มีรูป — วางไฟล์ไว้ที่ assets/images/gallery/&lt;ปี&gt;/1_&lt;ปี&gt;.png</p>`;

@@ -176,8 +176,21 @@
   <div class="modal" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" hidden>
     <button class="modal__close" type="button" aria-label="Close">&times;</button>
     <figure class="modal__content lightbox">
-      <img id="lightboxImg" alt="" />
-      <figcaption id="lightboxCaption"></figcaption>
+      <div class="lightbox__stage">
+        <button class="lightbox__nav lightbox__nav--prev" id="lightboxPrev" type="button" aria-label="Previous photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <img id="lightboxImg" alt="" />
+        <button class="lightbox__nav lightbox__nav--next" id="lightboxNext" type="button" aria-label="Next photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+      <figcaption class="lightbox__info">
+        <strong id="lightboxTitle"></strong>
+        <span id="lightboxMeta"></span>
+        <span class="lightbox__count" id="lightboxCount"></span>
+      </figcaption>
+      <div class="lightbox__thumbs" id="lightboxThumbs"></div>
     </figure>
   </div>
 
