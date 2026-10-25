@@ -1,0 +1,16 @@
+name = "vk-ig-gallery"
+main = "ig-gallery-worker.js"
+compatibility_date = "2026-10-01"
+
+# ต่ออายุ Instagram token ทุกวันจันทร์ 03:00 UTC
+[triggers]
+crons = ["0 3 * * 1"]
+
+[vars]
+# ใส่โดเมนเว็บจริงเมื่อ deploy แล้ว (คั่นหลายโดเมนด้วย ,) — "*" = อนุญาตทุกที่
+ALLOWED_ORIGIN = "*"
+
+# สร้าง KV ด้วย: npx wrangler kv namespace create IG_KV  แล้วเอา id มาใส่
+[[kv_namespaces]]
+binding = "IG_KV"
+id = "6b33faa4389e49789e478a8178a2fc76"

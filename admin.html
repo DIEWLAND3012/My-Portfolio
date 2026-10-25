@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Portfolio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- ---------- Login ---------- -->
+  <main class="login" id="loginView">
+    <form class="login__box" id="loginForm">
+      <h1>Portfolio Admin</h1>
+      <p>ใส่รหัสผ่านเพื่อแก้ไขเนื้อหา</p>
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+      <button class="btn btn--primary" type="submit">เข้าสู่ระบบ</button>
+      <p class="login__error" id="loginError" role="alert"></p>
+    </form>
+  </main>
+
+  <!-- ---------- App ---------- -->
+  <div class="app" id="appView" hidden>
+    <header class="topbar">
+      <h1>Portfolio Admin</h1>
+      <nav class="tabs" role="tablist">
+        <button class="tab is-active" data-tab="gallery" role="tab" type="button">Gallery</button>
+        <button class="tab" data-tab="films" role="tab" type="button">Films</button>
+      </nav>
+      <div class="topbar__actions">
+        <a class="btn btn--ghost" href="index.html" target="_blank">ดูหน้าเว็บ ↗</a>
+        <button class="btn btn--ghost" id="logoutBtn" type="button">ออกจากระบบ</button>
+      </div>
+    </header>
+
+    <!-- Gallery -->
+    <section class="panel" id="tab-gallery">
+      <div class="toolbar">
+        <label class="switch">
+          <input type="checkbox" id="hideVideos" />
+          <span>ซ่อนปก Reels / วิดีโอทั้งหมด</span>
+        </label>
+        <select id="filterSelect" aria-label="Filter">
+          <option value="all">แสดงทั้งหมด</option>
+          <option value="visible">เฉพาะที่แสดงบนเว็บ</option>
+          <option value="hidden">เฉพาะที่ซ่อน</option>
+          <option value="custom">เฉพาะรูปที่อัปโหลดเอง</option>
+        </select>
+        <select id="yearSelect" aria-label="Year"></select>
+        <button class="btn btn--ghost" id="refreshIgBtn" type="button">ดึงโพสต์ IG ล่าสุด</button>
+        <span class="toolbar__count" id="galleryCount"></span>
+      </div>
+
+      <form class="upload" id="uploadForm">
+        <strong>เพิ่มรูปเอง</strong>
+        <label>ปี <input type="number" id="uploadYear" min="2000" max="2100" required /></label>
+        <label>คำอธิบาย <input type="text" id="uploadTitle" placeholder="(ไม่บังคับ)" /></label>
+        <input type="file" id="uploadFiles" accept="image/jpeg,image/png,image/webp" multiple required />
+        <button class="btn btn--primary" type="submit">อัปโหลด</button>
+        <span class="upload__status" id="uploadStatus"></span>
+      </form>
+
+      <div id="galleryList"></div>
+    </section>
+
+    <!-- Films -->
+    <section class="panel" id="tab-films" hidden>
+      <div class="toolbar">
+        <button class="btn btn--primary" id="addFilmBtn" type="button">+ เพิ่มหนังใหม่</button>
+        <span class="toolbar__hint">ลำดับในหน้านี้ = ลำดับใน slider หน้า Film</span>
+      </div>
+      <div id="filmList" class="film-list"></div>
+    </section>
+
+    <!-- Save bar -->
+    <div class="savebar" id="saveBar">
+      <span id="saveStatus">ยังไม่มีการเปลี่ยนแปลง</span>
+      <button class="btn btn--ghost" id="discardBtn" type="button" disabled>ยกเลิกการแก้ไข</button>
+      <button class="btn btn--primary" id="saveBtn" type="button" disabled>บันทึก</button>
+    </div>
+  </div>
+
+  <template id="filmTemplate">
+    <article class="film-card">
+      <img class="film-card__thumb" alt="" />
+      <div class="film-card__fields">
+        <div class="grid-2">
+          <label>ปี <input data-field="year" type="text" /></label>
+          <label>ชื่อเรื่อง <input data-field="title" type="text" required /></label>
+        </div>
+        <label>ลิงก์ YouTube <input data-field="youtube" type="text" placeholder="https://youtu.be/..." /></label>
+        <label>Tagline <input data-field="tagline" type="text" placeholder="“A Journey Back to Nature”" /></label>
+        <label>เรื่องย่อ <textarea data-field="description" rows="4"></textarea></label>
+        <label>เครดิต <input data-field="credit" type="text" /></label>
+        <details>
+          <summary>รูปเพิ่มเติม (ไม่บังคับ)</summary>
+          <label>รูปคนตัดพื้นหลัง (path หรือ URL) <input data-field="person" type="text" placeholder="assets/images/xxx.png" /></label>
+          <label>รูปพื้นหลัง (ว่าง = ใช้ปก YouTube) <input data-field="background" type="text" /></label>
+        </details>
+      </div>
+      <div class="film-card__actions">
+        <button class="icon-btn" data-action="up" type="button" title="เลื่อนขึ้น">↑</button>
+        <button class="icon-btn" data-action="down" type="button" title="เลื่อนลง">↓</button>
+        <button class="icon-btn icon-btn--danger" data-action="delete" type="button" title="ลบ">✕</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vasin Kaewmoragot — Portfolio</title>
+  <meta name="description" content="Vasin Kaewmoragot — Film Director, Director of Photography, Film Editor" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============ NAVIGATION ============ -->
+  <nav class="nav" aria-label="Main navigation">
+    <ul class="nav__list">
+      <li>
+        <a href="#profile" class="nav__item is-active" data-target="profile" aria-current="page">
+          <span class="nav__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5" />
+            </svg>
+          </span>
+          <span class="nav__label">Profile</span>
+        </a>
+      </li>
+      <li>
+        <a href="#film" class="nav__item" data-target="film">
+          <span class="nav__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9Z" />
+              <path d="m3.2 9.6-.4-2.4a2 2 0 0 1 1.6-2.3L17 2.7a2 2 0 0 1 2.3 1.6l.4 2.4L3.2 9.6Z" />
+              <path d="m7.5 4.3 2.6 3.6M12.6 3.4l2.6 3.6" />
+            </svg>
+          </span>
+          <span class="nav__label">Film</span>
+        </a>
+      </li>
+      <li>
+        <a href="#gallery" class="nav__item" data-target="gallery">
+          <span class="nav__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="8" rx="1.5" />
+              <rect x="13" y="3" width="8" height="5" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="13" y="11" width="8" height="10" rx="1.5" />
+            </svg>
+          </span>
+          <span class="nav__label">Gallery</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ============ STAGE (Flashcard sections) ============ -->
+  <main class="stage">
+
+    <!-- ---------- SECTION 1: PROFILE ---------- -->
+    <section id="profile" class="page page--profile is-active" aria-label="Profile">
+      <div class="page__card">
+        <div class="profile__top">
+          <div class="profile__hero">
+            <div class="banner noise">
+              <div class="banner__text">
+                <h1 class="banner__name">Vasin<br />Kaewmoragot</h1>
+                <p class="banner__roles">Film Director • Director of Photography • Film Editor</p>
+              </div>
+            </div>
+
+            <!-- รูปโปรไฟล์ (PNG พื้นหลังโปร่งใส) — วางไฟล์จริงที่ assets/images/profile.png -->
+            <figure class="profile__photo">
+              <img src="assets/images/profile.png" alt="Vasin Kaewmoragot" data-fallback />
+            </figure>
+            <a href="https://www.youtube.com/@DIEWLAND_STUDIO" class="btn btn--profile" target="_blank" rel="noopener">YOUTUBE : DIEWLAND STUDIO</a>
+          </div>
+
+          <aside class="contact noise">
+            <h2 class="contact__title">contact</h2>
+            <ul class="contact__list">
+              <li>
+                <a class="contact__item" aria-label="Instagram: v.k_dl" title="Instagram: v.k_dl" href="https://www.instagram.com/v.k_dl" target="_blank" rel="noopener">
+                  <span class="contact__icon"><img src="assets/icons/instagram.svg" alt="Instagram" /></span>
+                </a>
+              </li>
+              <li>
+                <a class="contact__item" aria-label="LINE: diewlandstudio" title="LINE: diewlandstudio" href="https://line.me/ti/p/~diewlandstudio" target="_blank" rel="noopener">
+                  <span class="contact__icon"><img src="assets/icons/line.svg" alt="LINE" /></span>
+                </a>
+              </li>
+              <li>
+                <a class="contact__item" aria-label="Email: vasink2006@gmail.com" title="vasink2006@gmail.com" href="mailto:vasink2006@gmail.com">
+                  <span class="contact__icon"><img src="assets/icons/mail.svg" alt="Email" /></span>
+                </a>
+              </li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="row-head">
+          <h3>Most Popular</h3>
+          <button class="row-head__shuffle" id="shuffleBtn" type="button" aria-label="Shuffle most popular">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6" /></svg>
+          </button>
+        </div>
+        <div class="card-row" id="popularRow"><!-- JS renders random cards --></div>
+      </div>
+    </section>
+
+    <!-- ---------- SECTION 2: FILM ---------- -->
+    <section id="film" class="page page--film" aria-label="Film">
+      <div class="film">
+        <div class="film__bg" id="filmBg"></div>
+        <div class="film__panel" aria-hidden="true"></div>
+
+        <div class="film__left film__fade">
+          <p class="film__year" id="filmYear"></p>
+          <h2 class="film__title" id="filmTitle"></h2>
+          <p class="film__tagline" id="filmTagline"></p>
+          <button class="btn btn--watch" id="watchBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" /><path d="M10 8.5v7l6-3.5-6-3.5Z" fill="currentColor" />
+            </svg>
+            WATCH NOW!
+          </button>
+        </div>
+
+        <img class="film__person film__fade" id="filmPerson" alt="" data-fallback />
+
+        <div class="film__right">
+          <div class="film__arrows">
+            <button class="arrow-btn" id="filmPrev" type="button" aria-label="Previous film">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6" /></svg>
+            </button>
+            <button class="arrow-btn" id="filmNext" type="button" aria-label="Next film">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6" /></svg>
+            </button>
+          </div>
+          <div class="film__info film__fade">
+            <button class="film__thumb" id="filmThumb" type="button" aria-label="Play trailer">
+              <img id="filmThumbImg" alt="" />
+              <span class="film__thumb-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" /></svg>
+              </span>
+            </button>
+            <p class="film__desc" id="filmDesc"></p>
+            <p class="film__credit" id="filmCredit"></p>
+          </div>
+          <div class="film__dots" id="filmDots"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- SECTION 3: GALLERY ---------- -->
+    <section id="gallery" class="page page--gallery" aria-label="Gallery">
+      <div class="page__card">
+        <div class="gallery__head">
+          <div class="banner banner--gallery noise">
+            <h2 class="gallery__title">Gallery<br />2023-NOW</h2>
+            <ul class="gallery__gear">
+              <li>Olympus OM-D E-M10 Mark I</li>
+              <li>Olympus OM D E-M5 Mark II</li>
+              <li>Sony a7C II</li>
+            </ul>
+          </div>
+          <!-- รูปกล้อง (PNG พื้นหลังโปร่งใส) — วางไฟล์จริงที่ assets/images/camera.png -->
+          <img class="gallery__camera" src="assets/images/camera.png" alt="Sony a7C II camera" data-fallback />
+        </div>
+        <div id="galleryYears"><!-- JS renders year rows --></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ MODALS ============ -->
+  <div class="modal" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" hidden>
+    <button class="modal__close" type="button" aria-label="Close">&times;</button>
+    <figure class="modal__content lightbox">
+      <img id="lightboxImg" alt="" />
+      <figcaption id="lightboxCaption"></figcaption>
+    </figure>
+  </div>
+
+  <div class="modal" id="videoModal" role="dialog" aria-modal="true" aria-label="Video player" hidden>
+    <button class="modal__close" type="button" aria-label="Close">&times;</button>
+    <div class="modal__content video">
+      <!-- YouTube ต้องได้รับ Referer ไม่งั้นขึ้น Error 153 -->
+      <iframe id="videoFrame" title="Film trailer" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <a class="video__external" id="videoExternal" href="#" target="_blank" rel="noopener">เล่นไม่ได้? ดูบน YouTube ↗</a>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

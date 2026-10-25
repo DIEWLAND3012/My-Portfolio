@@ -1,0 +1,11 @@
+# Local tooling
+.claude/
+.wrangler/
+worker/.wrangler/
+node_modules/
+.dev.vars
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
