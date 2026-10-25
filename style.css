@@ -1072,3 +1072,8 @@ h1, h2, h3, p, figure { margin: 0; }
 }
 
 .card__count[hidden] { display: none; }
+
+/* Recommend — หลายโพสต์เรียงบนลงล่าง */
+.rec-list { display: flex; flex-direction: column; gap: 20px; }
+.rec-card__btn { margin-top: 12px; font-size: 18px; }
+.rec-card [hidden] { display: none !important; }

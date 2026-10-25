@@ -368,3 +368,14 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color:
   .rec { grid-template-columns: 1fr; }
   .ig-picker { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
 }
+
+/* Recommend list (หลายโพสต์) */
+.rec { grid-template-columns: minmax(200px, 320px) 1fr auto; }
+.rec details { font-size: 13px; color: var(--muted); }
+.rec details summary { cursor: pointer; color: var(--accent); font-weight: 500; padding: 4px 0; }
+.rec details label { margin-top: 8px; }
+.rec-empty[hidden] { display: none; }
+@media (max-width: 760px) {
+  .rec { grid-template-columns: 1fr; }
+  .rec .film-card__actions { flex-direction: row; }
+}

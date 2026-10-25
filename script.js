@@ -376,39 +376,51 @@ function formatDate(iso) {
   return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
-function renderRecommend(rec) {
-  const section = $("#recommend");
-  if (!rec) return;
+/** แสดงโพสต์แนะนำทั้งหมด เรียงจากบนลงล่างตามลำดับในหน้า admin */
+function renderRecommends(list) {
+  const items = (Array.isArray(list) ? list : list ? [list] : []).filter(
+    (r) => (r.type === "youtube" && r.youtubeId) || (r.type === "instagram" && r.photos?.length)
+  );
+  if (!items.length) return;
+  $("#recList").replaceChildren(...items.map(createRecCard));
+  $("#recommend").hidden = false;
+}
+
+function createRecCard(rec) {
+  const card = $("#recCardTemplate").content.firstElementChild.cloneNode(true);
+  const el = (name) => $(`[data-el="${name}"]`, card);
   const isVideo = rec.type === "youtube";
   const photos = rec.photos || [];
-  const img = $("#recImg");
-  img.addEventListener("load", () => img.classList.add("is-loaded"), { once: true });
-  img.src = isVideo ? ytThumb(rec.youtubeId, "hqdefault") : photos[0].src;
+
+  const img = el("img");
+  img.addEventListener("load", () => img.classList.add("is-loaded"));
+  img.src = isVideo ? ytThumb(rec.youtubeId) : photos[0].src;
   img.alt = rec.title;
   if (isVideo) bestYtThumb(rec.youtubeId).then((src) => (img.src = src));
 
-  $("#recPlay").hidden = !isVideo;
-  const count = $("#recCount");
-  count.hidden = isVideo || photos.length < 2;
-  count.innerHTML = `${ALBUM_ICON}<span>${photos.length}</span>`;
+  el("play").hidden = !isVideo;
+  el("count").hidden = isVideo || photos.length < 2;
+  el("count").innerHTML = `${ALBUM_ICON}<span>${photos.length}</span>`;
+  el("tag").textContent = isVideo ? "YouTube" : "Instagram";
+  el("title").textContent = rec.title;
+  el("date").textContent = formatDate(rec.date);
+  el("date").dateTime = rec.date || "";
+  el("desc").textContent = rec.description;
 
-  $("#recTag").textContent = isVideo ? "YouTube" : "Instagram";
-  $("#recTitle").textContent = rec.title;
-  $("#recDate").textContent = formatDate(rec.date);
-  $("#recDate").dateTime = rec.date || "";
-  $("#recDesc").textContent = rec.description;
-  $("#recOpen").textContent = isVideo ? "▶ ดูวิดีโอ" : photos.length > 1 ? `ดูรูปทั้งหมด (${photos.length})` : "ดูรูป";
+  // วิดีโอ = ปุ่ม WATCH NOW! แบบหน้า Film, โพสต์ IG = ปุ่มดูรูป
+  el("watch").hidden = !isVideo;
+  el("album").hidden = isVideo;
+  el("album").textContent = photos.length > 1 ? `ดูรูปทั้งหมด (${photos.length})` : "ดูรูป";
 
   const open = () =>
-    isVideo
-      ? openVideo(rec.youtubeId)
-      : openLightbox({ photos, title: rec.title, meta: formatDate(rec.date) });
-  $("#recMedia").onclick = open;
-  $("#recOpen").onclick = open;
-  section.hidden = false;
+    isVideo ? openVideo(rec.youtubeId) : openLightbox({ photos, title: rec.title, meta: formatDate(rec.date) });
+  el("media").addEventListener("click", open);
+  el("watch").addEventListener("click", open);
+  el("album").addEventListener("click", open);
+  return card;
 }
 
-siteDataPromise.then((data) => renderRecommend(data?.recommend));
+siteDataPromise.then((data) => renderRecommends(data?.recommends ?? data?.recommend));
 
 function openPost(post) {
   openLightbox({ photos: post.photos, title: post.title, meta: `Photo • ${post.year}` });

@@ -80,43 +80,50 @@
     <!-- Recommend -->
     <section class="panel" id="tab-recommend" hidden>
       <div class="toolbar">
-        <span class="toolbar__hint">โพสต์แนะนำ 1 โพสต์ แสดงในหน้า Profile ใต้ Contact / เหนือ Most Popular</span>
+        <button class="btn btn--primary" id="recCreateBtn" type="button">+ เพิ่มโพสต์แนะนำ</button>
+        <span class="toolbar__hint">แสดงในหน้า Profile ใต้ Contact / เหนือ Most Popular — ลำดับในหน้านี้ = ลำดับบนเว็บ (บนลงล่าง)</span>
       </div>
 
       <div class="rec-empty" id="recEmpty">
-        <p>ยังไม่มีโพสต์แนะนำ</p>
-        <button class="btn btn--primary" id="recCreateBtn" type="button">+ เพิ่มโพสต์แนะนำ</button>
+        <p>ยังไม่มีโพสต์แนะนำ — ส่วน Recommend จะถูกซ่อนบนเว็บ</p>
       </div>
+      <div class="film-list" id="recList"></div>
+    </section>
 
-      <div class="rec" id="recEditor" hidden>
+    <template id="recTemplate">
+      <article class="rec">
         <div class="rec__preview">
-          <div class="rec__media" id="recPreview"></div>
-          <button class="btn btn--ghost rec__delete" id="recDeleteBtn" type="button">ลบโพสต์แนะนำ</button>
+          <div class="rec__media" data-el="preview"></div>
         </div>
 
         <div class="rec__fields">
           <div class="segmented" role="radiogroup" aria-label="ประเภท">
-            <label><input type="radio" name="recType" value="youtube" /> <span>วิดีโอ YouTube</span></label>
-            <label><input type="radio" name="recType" value="instagram" /> <span>โพสต์ Instagram</span></label>
+            <label><input type="radio" data-el="type" value="youtube" /> <span>วิดีโอ YouTube</span></label>
+            <label><input type="radio" data-el="type" value="instagram" /> <span>โพสต์ Instagram</span></label>
           </div>
 
-          <label id="recYoutubeField">ลิงก์ YouTube
-            <input type="text" id="recYoutube" placeholder="https://youtu.be/..." />
+          <label data-el="youtubeField">ลิงก์ YouTube
+            <input type="text" data-el="youtube" placeholder="https://youtu.be/..." />
           </label>
 
-          <div id="recIgField">
-            <label>เลือกโพสต์ IG (ค้นหาจากแคปชัน)
-              <input type="text" id="recIgSearch" placeholder="พิมพ์เพื่อค้นหา…" />
-            </label>
-            <div class="ig-picker" id="recIgPicker"></div>
-          </div>
+          <details data-el="igField">
+            <summary data-el="igSummary">เลือกโพสต์ IG</summary>
+            <label>ค้นหาจากแคปชัน <input type="text" data-el="igSearch" placeholder="พิมพ์เพื่อค้นหา…" /></label>
+            <div class="ig-picker" data-el="igPicker"></div>
+          </details>
 
-          <label>Title <input type="text" id="recTitle" /></label>
-          <label>คำอธิบาย <textarea id="recDesc" rows="4"></textarea></label>
-          <label class="rec__date">วันที่ <input type="date" id="recDate" /></label>
+          <label>Title <input type="text" data-el="title" /></label>
+          <label>คำอธิบาย <textarea data-el="description" rows="4"></textarea></label>
+          <label class="rec__date">วันที่ <input type="date" data-el="date" /></label>
         </div>
-      </div>
-    </section>
+
+        <div class="film-card__actions">
+          <button class="icon-btn" data-action="up" type="button" title="เลื่อนขึ้น">↑</button>
+          <button class="icon-btn" data-action="down" type="button" title="เลื่อนลง">↓</button>
+          <button class="icon-btn icon-btn--danger" data-action="delete" type="button" title="ลบ">✕</button>
+        </div>
+      </article>
+    </template>
 
     <!-- Save bar -->
     <div class="savebar" id="saveBar">
