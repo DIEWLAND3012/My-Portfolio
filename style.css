@@ -1077,3 +1077,11 @@ h1, h2, h3, p, figure { margin: 0; }
 .rec-list { display: flex; flex-direction: column; gap: 20px; }
 .rec-card__btn { margin-top: 12px; font-size: 18px; }
 .rec-card [hidden] { display: none !important; }
+
+/* Recommend แบบโพสต์ IG — พรีวิว 1:1 */
+.rec-card--post { grid-template-columns: minmax(160px, 340px) minmax(0, 1fr); }
+.rec-card--post .rec-card__media { aspect-ratio: 1 / 1; }
+@media (max-width: 860px) {
+  .rec-card--post { grid-template-columns: 1fr; }
+  .rec-card--post .rec-card__media { max-width: 420px; }
+}

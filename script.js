@@ -407,10 +407,10 @@ function createRecCard(rec) {
   el("date").dateTime = rec.date || "";
   el("desc").textContent = rec.description;
 
-  // วิดีโอ = ปุ่ม WATCH NOW! แบบหน้า Film, โพสต์ IG = ปุ่มดูรูป
+  // วิดีโอ = ภาพ 16:9 + ปุ่ม WATCH NOW!, โพสต์ IG = ภาพ 1:1 กดที่รูปเพื่อดู (ไม่มีปุ่ม)
+  card.classList.toggle("rec-card--post", !isVideo);
   el("watch").hidden = !isVideo;
-  el("album").hidden = isVideo;
-  el("album").textContent = photos.length > 1 ? `ดูรูปทั้งหมด (${photos.length})` : "ดูรูป";
+  el("album").hidden = true;
 
   const open = () =>
     isVideo ? openVideo(rec.youtubeId) : openLightbox({ photos, title: rec.title, meta: formatDate(rec.date) });
