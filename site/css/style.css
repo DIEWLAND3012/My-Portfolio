@@ -676,6 +676,8 @@ h1, h2, h3, p, figure { margin: 0; }
    SECTION — FRAMING (ใช้ Banner/กล้องแบบเดียวกับ Gallery)
    ========================================================= */
 .banner--framing { justify-content: flex-start; }
+/* ขนาดกล้องหน้า Framing (จอใหญ่) — แก้ width / max-width ตรงนี้ */
+.framing__camera { width: 46%; max-width: 520px; }
 .framing__film { padding: 0 clamp(4px, 1.5%, 16px); }
 .framing__name {
   margin: 22px 0 14px;
@@ -996,6 +998,9 @@ h1, h2, h3, p, figure { margin: 0; }
   }
   .year-block .card { flex-basis: 40%; }
   .framing__grid { grid-template-columns: 1fr; }
+  /* ขนาดกล้องหน้า Framing (จอเล็ก/มือถือ) — แก้ --cam-h (ความสูงกล้อง) ตรงนี้ */
+  .framing__head { --cam-h: clamp(160px, 42vw, 260px); --cam-pop: 70px; }
+  .framing__camera { width: auto; max-width: 92%; }
 }
 
 @media (max-width: 480px) {
