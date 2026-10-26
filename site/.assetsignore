@@ -1,0 +1,4 @@
+# ไฟล์ในโฟลเดอร์ site/ ที่ไม่ต้องขึ้นเว็บ
+**/README.md
+**/.gitkeep
+.assetsignore

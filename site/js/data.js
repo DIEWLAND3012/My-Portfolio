@@ -2,7 +2,7 @@
    ข้อมูลที่ใช้ร่วมกันระหว่างหน้าเว็บ (index.html) และหน้าแก้ไข (admin.html)
    ========================================================= */
 
-// Cloudflare Worker (ดู worker/SETUP.md) — ว่าง = ไม่ใช้ Instagram/หน้า admin
+// Cloudflare Worker (ดู api/SETUP.md) — ว่าง = ไม่ใช้ Instagram/หน้า admin
 const WORKER_URL = "https://vk-ig-gallery.vasin.workers.dev";
 
 const CREDIT = "Directed by Vasin Kaewmoragot";

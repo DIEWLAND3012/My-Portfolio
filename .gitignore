@@ -1,7 +1,7 @@
 # Local tooling
 .claude/
 .wrangler/
-worker/.wrangler/
+api/.wrangler/
 node_modules/
 .dev.vars
 

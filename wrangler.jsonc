@@ -1,0 +1,8 @@
+// Deploy หน้าเว็บ (โฟลเดอร์ site/) ขึ้น Cloudflare
+// รันที่โฟลเดอร์นี้:  npx wrangler deploy
+// เว็บ: https://diewland-portfolio.vasin.workers.dev
+{
+  "name": "diewland-portfolio",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./site" }
+}

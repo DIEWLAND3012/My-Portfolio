@@ -26,7 +26,7 @@
 ## ขั้นที่ 2 — Deploy Worker (Cloudflare, ฟรี)
 
 1. สมัคร/ล็อกอิน https://dash.cloudflare.com
-2. เปิด Terminal ที่โฟลเดอร์ `worker` แล้วรันทีละคำสั่ง:
+2. เปิด Terminal ที่โฟลเดอร์ `api` แล้วรันทีละคำสั่ง:
 
 ```bash
 npx wrangler login
@@ -51,10 +51,10 @@ npx wrangler deploy
 
 ## ขั้นที่ 3 — เชื่อมกับเว็บ
 
-ใน `script.js` ใส่ URL ของ Worker:
+ใน `site/js/data.js` ใส่ URL ของ Worker:
 
 ```js
-const IG_GALLERY_URL = "https://vk-ig-gallery.<ชื่อ>.workers.dev";
+const WORKER_URL = "https://vk-ig-gallery.<ชื่อ>.workers.dev";
 ```
 
 เมื่อ deploy เว็บจริงแล้ว แนะนำให้แก้ `ALLOWED_ORIGIN` ใน `wrangler.toml` เป็นโดเมนเว็บ แล้ว `npx wrangler deploy` อีกครั้ง
@@ -63,7 +63,7 @@ const IG_GALLERY_URL = "https://vk-ig-gallery.<ชื่อ>.workers.dev";
 
 ## ขั้นที่ 4 — เปิดใช้หน้าแก้ไข (admin.html)
 
-ในโฟลเดอร์ `worker` รัน:
+ในโฟลเดอร์ `api` รัน:
 
 ```bash
 npx wrangler secret put ADMIN_PASSWORD
@@ -90,5 +90,5 @@ npx wrangler deploy
 - โพสต์ใหม่บน IG จะขึ้นเว็บภายใน ~1 ชั่วโมง (Cache) — แก้ได้ที่ `CACHE_SECONDS`
 - โพสต์แบบอัลบั้ม → แตกเป็นทุกรูป, วิดีโอ/Reels → ใช้ภาพปก
 - แบ่งปีตามวันที่โพสต์ ชื่อการ์ดใช้บรรทัดแรกของแคปชัน
-- ถ้า Worker ล่ม/Token หมดอายุ เว็บจะกลับไปใช้รูปในโฟลเดอร์ `assets/images/gallery/<ปี>/` อัตโนมัติ
+- ถ้า Worker ล่ม/Token หมดอายุ เว็บจะกลับไปใช้รูปในโฟลเดอร์ `site/assets/images/gallery/<ปี>/` อัตโนมัติ
 - Token ต่ออายุเองทุกวันจันทร์ (cron) — ถ้าเว็บไม่ได้เปิดนานเกิน 60 วันแล้ว Token หมด ให้ทำขั้นที่ 1 ข้อ 5 และ `wrangler secret put IG_TOKEN` ใหม่
