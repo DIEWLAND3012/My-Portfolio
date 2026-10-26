@@ -591,6 +591,48 @@ function renderGalleryYear({ year, posts }) {
 })();
 
 /* ---------------------------------------------------------
+   Framing (shot 2.35:1 ของแต่ละเรื่อง)
+   --------------------------------------------------------- */
+(function renderFraming() {
+  const root = $("#framingFilms");
+  FRAMING.forEach(({ folder, count }) => {
+    const base = `assets/images/Framing/${encodeURIComponent(folder)}/`;
+    const photos = Array.from({ length: count }, (_, i) => ({
+      src: base + encodeURIComponent(`${folder} - ${i + 1}.jpg`),
+    }));
+
+    const block = document.createElement("div");
+    block.className = "framing__film";
+    const h3 = document.createElement("h3");
+    h3.className = "framing__name";
+    h3.textContent = folder;
+    const grid = document.createElement("div");
+    grid.className = "framing__grid";
+
+    photos.forEach((photo, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "framing__shot";
+      btn.setAttribute("aria-label", `${folder} — shot ${i + 1}`);
+      const img = document.createElement("img");
+      img.src = photo.src;
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.addEventListener("error", () => btn.remove());
+      btn.append(img);
+      btn.addEventListener("click", () =>
+        openLightbox({ photos, index: i, title: folder, meta: "Framing" })
+      );
+      grid.append(btn);
+    });
+
+    block.append(h3, grid);
+    root.append(block);
+  });
+})();
+
+/* ---------------------------------------------------------
    Static image fallbacks (profile.png, camera.png)
    --------------------------------------------------------- */
 $$("img[data-fallback]").forEach((img) => {

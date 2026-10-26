@@ -68,6 +68,12 @@ const DEFAULT_FILMS = [
   },
 ];
 
+// หน้า Framing — รูปอยู่ที่ assets/images/Framing/<folder>/<folder> - 1.jpg, - 2.jpg, ...
+// เพิ่มหนังใหม่: สร้างโฟลเดอร์ตามชื่อ ใส่รูปตามรูปแบบชื่อนี้ แล้วเพิ่มบรรทัดที่นี่ (count = จำนวนรูป)
+const FRAMING = [
+  { folder: "HUATAKHE (2026)", count: 6 },
+];
+
 /** แปลงลิงก์ YouTube ทุกแบบ (youtu.be, watch?v=, shorts, embed) หรือ ID ตรงๆ -> ID */
 function parseYoutubeId(input) {
   const s = String(input || "").trim();

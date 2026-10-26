@@ -672,6 +672,39 @@ h1, h2, h3, p, figure { margin: 0; }
 .gallery__camera:hover { transform: translateY(-5px) rotate(-2deg); }
 .gallery__camera.img-missing { display: none; }
 
+/* =========================================================
+   SECTION — FRAMING (ใช้ Banner/กล้องแบบเดียวกับ Gallery)
+   ========================================================= */
+.banner--framing { justify-content: flex-start; }
+.framing__film { padding: 0 clamp(4px, 1.5%, 16px); }
+.framing__name {
+  margin: 22px 0 14px;
+  text-align: center;
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 400;
+}
+.framing__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 1.6vw, 20px);
+  padding-bottom: 12px;
+}
+.framing__shot {
+  display: block;
+  padding: 0;
+  border: 0;
+  aspect-ratio: 2.35 / 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #d9d9d9;
+  box-shadow: var(--shadow-default);
+  cursor: zoom-in;
+  transition: var(--transition);
+}
+.framing__shot:hover,
+.framing__shot:focus-visible { transform: translateY(-5px); }
+.framing__shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 .year-block .row-head { margin: 14px 0 10px 16px; }
 .year-block .row-head h3 { font-size: 18px; font-weight: 700; }
 .year-block .card { flex-basis: clamp(150px, 18.5%, 260px); }
@@ -962,6 +995,7 @@ h1, h2, h3, p, figure { margin: 0; }
     left: 4%;
   }
   .year-block .card { flex-basis: 40%; }
+  .framing__grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {

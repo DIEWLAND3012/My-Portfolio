@@ -39,6 +39,17 @@
         </a>
       </li>
       <li>
+        <a href="#framing" class="nav__item" data-target="framing">
+          <span class="nav__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4" />
+            </svg>
+          </span>
+          <span class="nav__label">Framing</span>
+        </a>
+      </li>
+      <li>
         <a href="#gallery" class="nav__item" data-target="gallery">
           <span class="nav__icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
@@ -183,7 +194,21 @@
       </div>
     </section>
 
-    <!-- ---------- SECTION 3: GALLERY ---------- -->
+    <!-- ---------- SECTION 3: FRAMING ---------- -->
+    <section id="framing" class="page page--framing" aria-label="Framing">
+      <div class="page__card">
+        <div class="gallery__head framing__head">
+          <div class="banner banner--gallery banner--framing noise">
+            <h2 class="gallery__title framing__title">Cinematography<br />Shot Framing</h2>
+          </div>
+          <!-- รูปกล้องถ่ายหนัง (PNG พื้นหลังโปร่งใส) — วางไฟล์ที่ assets/images/cinema-camera.png -->
+          <img class="gallery__camera framing__camera" src="assets/images/cinema-camera.png" alt="Cinema camera" data-fallback />
+        </div>
+        <div id="framingFilms"><!-- JS renders one block per film --></div>
+      </div>
+    </section>
+
+    <!-- ---------- SECTION 4: GALLERY ---------- -->
     <section id="gallery" class="page page--gallery" aria-label="Gallery">
       <div class="page__card">
         <div class="gallery__head">
