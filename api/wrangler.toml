@@ -16,6 +16,10 @@ name = "ADMIN_LIMITER"
 namespace_id = "1001"
 simple = { limit = 30, period = 60 }
 
+# Cloudflare Images — ย่อรูป IG เป็น WebP (/thumb/<id>?w=600|1600) ฟรี 5,000 ครั้ง/เดือน
+[images]
+binding = "IMAGES"
+
 # สร้าง KV ด้วย: npx wrangler kv namespace create IG_KV  แล้วเอา id มาใส่
 [[kv_namespaces]]
 binding = "IG_KV"

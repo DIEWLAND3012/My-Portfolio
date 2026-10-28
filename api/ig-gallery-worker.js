@@ -91,6 +91,56 @@ async function getIgPhotos(env, ctx, requestUrl) {
   return photos;
 }
 
+/* ---------------- รูปย่อ (ลดขนาดรูป IG 2–3MB ให้เหลือไม่กี่ร้อย KB) ---------------- */
+// /thumb/<id>?w=600  = การ์ด, ?w=1600 = ภาพใหญ่ตอนกดดู
+// ย่อครั้งเดียวด้วย Cloudflare Images แล้วเก็บไว้ใน KV — ครั้งต่อไปส่งจาก KV ทันที
+const THUMB_WIDTHS = [600, 1600];
+const THUMB_VERSION = 1; // เปลี่ยนเลขนี้ถ้าอยากให้ย่อรูปใหม่ทั้งหมด
+
+const thumbUrl = (origin, id, w) => `${origin}/thumb/${encodeURIComponent(id)}?w=${w}`;
+
+/** เพิ่ม src (1600px) + thumb (600px) ให้รูป — ใช้ต้นฉบับถ้าไม่มี binding IMAGES */
+function withThumbs(photo, origin, env) {
+  if (!env.IMAGES) return { ...photo, thumb: photo.src };
+  return { ...photo, src: thumbUrl(origin, photo.id, 1600), thumb: thumbUrl(origin, photo.id, 600) };
+}
+
+async function serveThumb(request, env, ctx, id) {
+  const url = new URL(request.url);
+  const w = Number(url.searchParams.get("w"));
+  if (!THUMB_WIDTHS.includes(w) || !/^[\w-]{1,80}$/.test(id)) return new Response("Bad request", { status: 400 });
+
+  const kvKey = `thumb:v${THUMB_VERSION}:${w}:${id}`;
+  const headers = { "Content-Type": "image/webp", "Cache-Control": "public, max-age=2592000" };
+  const cached = await env.IG_KV.get(kvKey, "arrayBuffer");
+  if (cached) return new Response(cached, { headers });
+
+  // หารูปต้นฉบับจาก id เท่านั้น (ไม่รับ URL จากภายนอก กันใช้เป็น proxy)
+  let source;
+  const custom = (await getContent(env)).custom.find((c) => c.id === id);
+  if (custom) {
+    source = await env.IG_KV.get(`img:${id}`, "stream");
+  } else {
+    const photo = (await getIgPhotos(env, ctx, request.url)).find((p) => p.id === id);
+    if (photo) source = (await fetch(photo.src)).body;
+  }
+  if (!source) return new Response("Not found", { status: 404 });
+
+  try {
+    const out = await env.IMAGES.input(source)
+      .transform({ width: w, fit: "scale-down" })
+      .output({ format: "image/webp", quality: 80 });
+    const buf = await out.response().arrayBuffer();
+    ctx.waitUntil(env.IG_KV.put(kvKey, buf));
+    return new Response(buf, { headers });
+  } catch (err) {
+    // ย่อไม่ได้ (เช่นเกินโควตาฟรี) -> ส่งไปรูปต้นฉบับแทน
+    const photo = (await getIgPhotos(env, ctx, request.url)).find((p) => p.id === id);
+    const fallback = custom ? `${url.origin}/img/${id}` : photo?.src;
+    return fallback ? Response.redirect(fallback, 302) : new Response("Not found", { status: 404 });
+  }
+}
+
 /* ---------------- Content ---------------- */
 async function getContent(env) {
   const saved = await env.IG_KV.get("content", "json");
@@ -112,7 +162,7 @@ function groupByYear(photos) {
     }));
 }
 
-function buildPublicGallery(igPhotos, content) {
+function buildPublicGallery(igPhotos, content, origin, env) {
   const hidden = new Set(content.hidden);
   const ig = igPhotos
     .filter((p) => !hidden.has(p.id) && !(content.hideVideos && p.isVideo))
@@ -130,7 +180,7 @@ function buildPublicGallery(igPhotos, content) {
     year: Number(c.year),
     timestamp: c.added,
   }));
-  return groupByYear([...ig, ...custom]);
+  return groupByYear([...ig, ...custom].map((p) => withThumbs(p, origin, env)));
 }
 
 function sanitizeContent(input) {
@@ -177,13 +227,17 @@ function sanitizeContent(input) {
 }
 
 /** เติมรูปของโพสต์ IG ที่เลือก (เรียงตามลำดับในอัลบั้ม) — ตัดรายการที่ใช้ไม่ได้ออก */
-function buildRecommends(igPhotos, content) {
+function buildRecommends(igPhotos, content, origin, env) {
   return content.recommends
     .map((r) => {
       if (r.type === "instagram") {
         const items = igPhotos.filter((p) => p.id.startsWith(`${r.postId}_`));
         if (!items.length) return null; // โพสต์ถูกลบจาก IG แล้ว
-        return { ...r, photos: items.map((p) => ({ src: p.src })), permalink: items[0].permalink || "" };
+        const photos = items.map((p) => {
+          const { src, thumb } = withThumbs(p, origin, env);
+          return { src, thumb };
+        });
+        return { ...r, photos, permalink: items[0].permalink || "" };
       }
       return r.youtubeId ? r : null;
     })
@@ -236,13 +290,17 @@ async function route(request, env, ctx) {
     return json(
       {
         updated: new Date().toISOString(),
-        years: buildPublicGallery(igPhotos, content),
+        years: buildPublicGallery(igPhotos, content, url.origin, env),
         films: content.films,
-        recommends: buildRecommends(igPhotos, content),
+        recommends: buildRecommends(igPhotos, content, url.origin, env),
       },
       200,
       { "Cache-Control": "public, max-age=60" }
     );
+  }
+
+  if (method === "GET" && path.startsWith("/thumb/") && env.IMAGES) {
+    return serveThumb(request, env, ctx, decodeURIComponent(path.slice(7)));
   }
 
   if (method === "GET" && path.startsWith("/img/")) {

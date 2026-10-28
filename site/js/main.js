@@ -58,7 +58,7 @@ function groupIntoPosts(year, photos) {
   for (const p of photos) {
     const postId = String(p.id ?? p.src).replace(/_\d+$/, "");
     if (!posts.has(postId)) posts.set(postId, { id: postId, title: p.title || "", year, photos: [] });
-    posts.get(postId).photos.push({ src: p.src });
+    posts.get(postId).photos.push({ src: p.src, thumb: p.thumb || p.src }); // thumb = รูปย่อสำหรับการ์ด
   }
   return [...posts.values()];
 }
@@ -291,7 +291,7 @@ function openLightbox({ photos, index = 0, title = "", meta = "" }) {
           b.className = "lightbox__thumb";
           b.setAttribute("aria-label", `Photo ${i + 1}`);
           b.innerHTML = `<img loading="lazy" alt="">`;
-          $("img", b).src = p.src;
+          $("img", b).src = p.thumb || p.src;
           b.addEventListener("click", () => showAlbumPhoto(i));
           return b;
         })
@@ -359,7 +359,7 @@ function buildPopularPool() {
   }));
   const posts = GALLERY.flatMap((g) =>
     g.posts.map((post) => ({
-      card: { src: post.photos[0].src, alt: post.title, tag: "Gallery", meta: `Photo • ${g.year}`, count: post.photos.length },
+      card: { src: post.photos[0].thumb, alt: post.title, tag: "Gallery", meta: `Photo • ${g.year}`, count: post.photos.length },
       open: () => openPost(post),
     }))
   );
@@ -400,7 +400,7 @@ function createRecCard(rec) {
   const img = el("img");
   img.fetchPriority = "high"; // อยู่บนสุดของหน้าแรก ให้โหลดก่อนรูป Most Popular
   img.addEventListener("load", () => img.classList.add("is-loaded"));
-  img.src = isVideo ? ytThumb(rec.youtubeId) : photos[0].src;
+  img.src = isVideo ? ytThumb(rec.youtubeId) : photos[0].thumb || photos[0].src;
   img.alt = rec.title;
   if (isVideo) bestYtThumb(rec.youtubeId).then((src) => (img.src = src));
 
@@ -585,7 +585,7 @@ function renderGalleryYear({ year, posts }) {
     <div class="card-row"></div>`;
   const row = $(".card-row", block);
   posts.forEach((post) =>
-    row.append(createCard({ src: post.photos[0].src, alt: post.title, count: post.photos.length }, () => openPost(post)))
+    row.append(createCard({ src: post.photos[0].thumb, alt: post.title, count: post.photos.length }, () => openPost(post)))
   );
 
   // กดลูกศรข้างปีเพื่อเลื่อนแถวไปทางขวา (สุดแล้ววนกลับต้นแถว)
