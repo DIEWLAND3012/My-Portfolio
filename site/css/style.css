@@ -364,7 +364,7 @@ h1, h2, h3, p, figure { margin: 0; }
   height: 100%;
 }
 .profile__photo.img-missing::before {
-  content: "assets/images/profile.png";
+  content: "assets/images/profile.webp";
   display: grid;
   place-items: center;
   width: 80%;

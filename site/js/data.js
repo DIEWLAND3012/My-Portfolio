@@ -18,7 +18,7 @@ const DEFAULT_FILMS = [
     description:
       "“Escape the hustle and bustle of the big city and rediscover the magic of Lan Sang National Park. From childhood dreams to adult sanctuaries, this hidden gem in Tak, Thailand, offers more than just a waterfall—it's a place to reconnect with bird watching, camping, and the people you love. Experience breathtaking beauty that stays with you forever. Your peaceful retreat awaits.”",
     credit: CREDIT,
-    person: "assets/images/profile.png",
+    person: "assets/images/profile.webp",
     youtubeId: "QHwY2-0SmMQ",
   },
   {

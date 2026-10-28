@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vasin Kaewmoragot — Portfolio</title>
   <meta name="description" content="Vasin Kaewmoragot — Film Director, Director of Photography, Film Editor" />
+  <!-- เริ่มโหลดข้อมูลจาก Worker (Recommend / Gallery / Films) ทันที ไม่ต้องรอ main.js -->
+  <link rel="preload" href="https://vk-ig-gallery.vasin.workers.dev/" as="fetch" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://i.ytimg.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -80,9 +83,9 @@
               </div>
             </div>
 
-            <!-- รูปโปรไฟล์ (PNG พื้นหลังโปร่งใส) — วางไฟล์จริงที่ assets/images/profile.png -->
+            <!-- รูปโปรไฟล์ (WebP พื้นหลังโปร่งใส, ต้นฉบับ PNG อยู่ที่ design/originals/) — วางไฟล์จริงที่ assets/images/profile.webp -->
             <figure class="profile__photo">
-              <img src="assets/images/profile.png" alt="Vasin Kaewmoragot" data-fallback />
+              <img src="assets/images/profile.webp" alt="Vasin Kaewmoragot" data-fallback />
             </figure>
             <a href="https://www.youtube.com/@DIEWLAND_STUDIO" class="btn btn--profile" target="_blank" rel="noopener">YOUTUBE : DIEWLAND STUDIO</a>
           </div>
@@ -201,8 +204,8 @@
           <div class="banner banner--gallery banner--framing noise">
             <h2 class="gallery__title framing__title">Cinematography<br />Shot Framing</h2>
           </div>
-          <!-- รูปกล้องถ่ายหนัง (PNG พื้นหลังโปร่งใส) — วางไฟล์ที่ assets/images/cinema-camera.png -->
-          <img class="gallery__camera framing__camera" src="assets/images/cinema-camera.png" alt="Cinema camera" data-fallback />
+          <!-- รูปกล้องถ่ายหนัง (WebP พื้นหลังโปร่งใส, ต้นฉบับ PNG อยู่ที่ design/originals/) — วางไฟล์ที่ assets/images/cinema-camera.webp -->
+          <img class="gallery__camera framing__camera" src="assets/images/cinema-camera.webp" alt="Cinema camera" data-fallback />
         </div>
         <div id="framingFilms"><!-- JS renders one block per film --></div>
       </div>
@@ -220,8 +223,8 @@
               <li>Sony a7C II</li>
             </ul>
           </div>
-          <!-- รูปกล้อง (PNG พื้นหลังโปร่งใส) — วางไฟล์จริงที่ assets/images/camera.png -->
-          <img class="gallery__camera" src="assets/images/camera.png" alt="Sony a7C II camera" data-fallback />
+          <!-- รูปกล้อง (WebP พื้นหลังโปร่งใส, ต้นฉบับ PNG อยู่ที่ design/originals/) — วางไฟล์จริงที่ assets/images/camera.webp -->
+          <img class="gallery__camera" src="assets/images/camera.webp" alt="Sony a7C II camera" data-fallback />
         </div>
         <div id="galleryYears"><!-- JS renders year rows --></div>
       </div>

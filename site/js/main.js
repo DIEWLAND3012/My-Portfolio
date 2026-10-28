@@ -26,7 +26,10 @@ function bestYtThumb(id) {
 }
 
 // FILMS เริ่มจาก DEFAULT_FILMS (data.js) แล้วถูกแทนด้วยข้อมูลจากหน้า admin (ผ่าน Worker) ถ้ามี
-const prepareFilms = (list) => list.map((f) => ({ ...f, thumbnail: f.thumbnail || ytThumb(f.youtubeId) }));
+// รูป PNG ตัวใหญ่ที่เคยบันทึกไว้ในหน้า admin -> ใช้ไฟล์ WebP ที่ย่อแล้วแทน
+const optimizedImage = (src) => src && String(src).replace(/^assets\/images\/(profile|camera|cinema-camera)\.png$/, "assets/images/$1.webp");
+const prepareFilms = (list) =>
+  list.map((f) => ({ ...f, person: optimizedImage(f.person), thumbnail: f.thumbnail || ytThumb(f.youtubeId) }));
 let FILMS = prepareFilms(DEFAULT_FILMS);
 
 /* ---------------------------------------------------------
@@ -381,9 +384,11 @@ function renderRecommends(list) {
   const items = (Array.isArray(list) ? list : list ? [list] : []).filter(
     (r) => (r.type === "youtube" && r.youtubeId) || (r.type === "instagram" && r.photos?.length)
   );
-  if (!items.length) return;
+  const key = JSON.stringify(items);
+  if (key === renderRecommends.last) return; // ข้อมูลเดิม ไม่ต้องสร้างการ์ดใหม่
+  renderRecommends.last = key;
   $("#recList").replaceChildren(...items.map(createRecCard));
-  $("#recommend").hidden = false;
+  $("#recommend").hidden = !items.length;
 }
 
 function createRecCard(rec) {
@@ -393,6 +398,7 @@ function createRecCard(rec) {
   const photos = rec.photos || [];
 
   const img = el("img");
+  img.fetchPriority = "high"; // อยู่บนสุดของหน้าแรก ให้โหลดก่อนรูป Most Popular
   img.addEventListener("load", () => img.classList.add("is-loaded"));
   img.src = isVideo ? ytThumb(rec.youtubeId) : photos[0].src;
   img.alt = rec.title;
@@ -420,7 +426,19 @@ function createRecCard(rec) {
   return card;
 }
 
-siteDataPromise.then((data) => renderRecommends(data?.recommends ?? data?.recommend));
+// แสดง Recommend จากครั้งก่อนทันที (ถ้าเคยเปิดเว็บ) แล้วค่อยอัปเดตเมื่อข้อมูลใหม่มาถึง
+const REC_CACHE_KEY = "vk-recommends";
+try {
+  renderRecommends(JSON.parse(localStorage.getItem(REC_CACHE_KEY)));
+} catch {}
+siteDataPromise.then((data) => {
+  if (!data) return;
+  const recs = data.recommends ?? data.recommend ?? [];
+  try {
+    localStorage.setItem(REC_CACHE_KEY, JSON.stringify(recs));
+  } catch {}
+  renderRecommends(recs);
+});
 
 function openPost(post) {
   openLightbox({ photos: post.photos, title: post.title, meta: `Photo • ${post.year}` });
